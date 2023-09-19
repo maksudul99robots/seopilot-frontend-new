@@ -15,10 +15,12 @@ const RedeemCoupon = () => {
         if (token) {
             let decoded: any = jwt_decode(token);
             if (decoded.plan && decoded.plan > 0) {
-                Swal.fire(
-                    "You're already in an LTD plan.",
-                    '',
-                    'warning'
+                Swal.fire({
+                    html: '<h2>' + "You're already in Rockethub LTD plan CAPTAIN" + '</h2>',
+                    confirmButtonText:"OK",
+                    icon:"warning"
+                },
+                   
                 ).then(() => {
                     router.push("/")
                 })

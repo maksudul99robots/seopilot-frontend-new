@@ -26,7 +26,8 @@ const Login2 = () => {
   useEffect(() => {
     if (!localStorage.getItem("extension_id"))
       Swal.fire({
-        title: 'Enter your Extension ID',
+        html: '<h3>Enter your Extension ID</h3>',
+        icon:"info",
         input: 'text',
         inputLabel: 'Settings > Extensions > Copy SEOPilot Extension ID.',
         inputValue: "",

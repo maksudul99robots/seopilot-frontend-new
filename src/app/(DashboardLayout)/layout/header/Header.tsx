@@ -57,8 +57,7 @@ const Header = ({toggleMobileSidebar}: ItemType) => {
           aria-haspopup="true"
         >
           <Badge  color="primary" sx={{display:"flex", alignItems:"center"}}>
-            <img src="logo512.png" height={35} />
-            <span style={{color:"#000", fontWeight:"700", fontSize:"20px", marginLeft:"5px"}}>SEO Pilot</span>
+            <img src="SEOPilotLogo256.png" height={35} />
           </Badge>
 
         </IconButton>
