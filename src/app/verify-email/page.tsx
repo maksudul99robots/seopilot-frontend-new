@@ -8,6 +8,8 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 const VerifyEmail = () => {
   const paramString = useSearchParams();
   const [param, setParam] = useState(paramString.get('token'));
+  const [extensionId, setExtensionId] = useState<string|null|undefined>('')
+
   const router = useRouter();
   useEffect(() => {
     if (param) {
@@ -18,17 +20,26 @@ const VerifyEmail = () => {
 
   }, [param])
 
+  useEffect(()=>{
+    if (window.location.hostname.includes("app.seopilot.io")) {
+      setExtensionId(process.env.NEXT_PUBLIC_EXT_ID)
+    }else{
+      setExtensionId(localStorage.getItem("extension_id"));
+    } 
+  },[])
 
-  const sendTokenToExtension = (token:string) => {
-    if (localStorage.getItem("extension_id")) {
+
+  const sendTokenToExtension = (token: string) => {
+    if (extensionId && extensionId.length>1) {
       // console.log("sending!!")
       chrome.runtime.sendMessage(
-        localStorage.getItem("extension_id"), // Extension ID
+        // localStorage.getItem("extension_id"), // Extension ID
+        extensionId,
         { action: "storeToken", token: token },
         (response) => {
-          console.log("response:", response)
+          // console.log("response:", response)
           if (response && response.success) {
-            console.log("Token stored in extension's local storage.", response);
+            // console.log("Token stored in extension's local storage.", response);
           } else {
             console.error("Failed to store token in extension.");
           }

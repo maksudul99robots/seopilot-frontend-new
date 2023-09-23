@@ -3,24 +3,36 @@
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
 import { LoginRegistrationAPI } from "@/app/services/API";
 import { Box } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import jwt_decode from "jwt-decode";
 
 const RedeemCoupon = () => {
     const router = useRouter();
+    const [extensionId, setExtensionId] = useState<string | null | undefined>('')
+
     useEffect(() => {
+
+
+        if (window.location.hostname.includes("app.seopilot.io")) {
+            setExtensionId(process.env.NEXT_PUBLIC_EXT_ID)
+        } else {
+            setExtensionId(localStorage.getItem("extension_id"));
+        }
+
         let token = localStorage.getItem('seo-pilot-token');
         if (token) {
             let decoded: any = jwt_decode(token);
             if (decoded.plan && decoded.plan > 0) {
                 Swal.fire({
-                    html: '<h2>' + "You're already in Rockethub LTD plan CAPTAIN" + '</h2>',
-                    confirmButtonText:"OK",
-                    icon:"warning"
+                    html: '<h2>' + "You're already in <br>Rockethub LTD - CAPTAIN" + '</h2>',
+                    confirmButtonText: "OK",
+                    icon: "error",
+                    iconColor: "#555555"
+
                 },
-                   
+
                 ).then(() => {
                     router.push("/")
                 })
@@ -83,23 +95,24 @@ const RedeemCoupon = () => {
     }, [])
 
     const sendTokenToExtension = (token: string) => {
-        if (localStorage.getItem("extension_id")) {
-            // console.log("sending!!")
-            chrome.runtime.sendMessage(
-                localStorage.getItem("extension_id"), // Extension ID
-                { action: "storeToken", token: token },
-                (response) => {
-                    console.log("response:", response)
-                    if (response && response.success) {
-                        console.log("Token stored in extension's local storage.", response);
-                    } else {
-                        console.error("Failed to store token in extension.");
-                    }
-                }
-            );
+        if (extensionId && extensionId.length>1) {
+          // console.log("sending!!")
+          chrome.runtime.sendMessage(
+            // localStorage.getItem("extension_id"), // Extension ID
+            extensionId,
+            { action: "storeToken", token: token },
+            (response) => {
+              // console.log("response:", response)
+              if (response && response.success) {
+                // console.log("Token stored in extension's local storage.", response);
+              } else {
+                console.error("Failed to store token in extension.");
+              }
+            }
+          );
         }
-
-    };
+    
+      };
     return (
         <PageContainer>
             <Box>
@@ -110,3 +123,5 @@ const RedeemCoupon = () => {
     );
 };
 export default RedeemCoupon;
+
+

@@ -21,19 +21,56 @@ const Register2 = () => {
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [disable, setDisable] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [extensionId, setExtensionId] = useState<string|null|undefined>('')
   const dispatch = useDispatch();
   const router = useRouter();
 
+
+  useEffect(() => {
+    if (window.location.hostname.includes("app.seopilot.io")) {
+      setExtensionId(process.env.NEXT_PUBLIC_EXT_ID)
+    } else {
+      if (!localStorage.getItem("extension_id")){
+        Swal.fire({
+          html: '<h3>Enter your Extension ID</h3>',
+          icon: "info",
+          input: 'text',
+          inputLabel: 'Settings > Extensions > Copy SEOPilot Extension ID.',
+          inputValue: "",
+          showCancelButton: false,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          inputValidator: (value) => {
+            if (!value) {
+              return 'Enter your Extension ID!'
+
+            }
+          }
+        }).then((res) => {
+          if (res?.value?.length > 10) {
+            localStorage.setItem("extension_id", res?.value);
+            setExtensionId(res?.value);
+          }
+        })
+      }else{
+        setExtensionId(localStorage.getItem("extension_id"));
+      }
+        
+    }
+
+  }, [])
+  
   const sendTokenToExtension = (token: string) => {
-    if (localStorage.getItem("extension_id")) {
+    if (extensionId && extensionId.length>1) {
       // console.log("sending!!")
       chrome.runtime.sendMessage(
-        localStorage.getItem("extension_id"), // Extension ID
+        // localStorage.getItem("extension_id"), // Extension ID
+        extensionId,
         { action: "storeToken", token: token },
         (response) => {
-          console.log("response:",response)
+          // console.log("response:", response)
           if (response && response.success) {
-            console.log("Token stored in extension's local storage.",response);
+            // console.log("Token stored in extension's local storage.", response);
           } else {
             console.error("Failed to store token in extension.");
           }
@@ -42,7 +79,7 @@ const Register2 = () => {
     }
 
   };
-  
+
   const submit = () => {
     if (isEmailValid) {
       if (password.length > 6) {
